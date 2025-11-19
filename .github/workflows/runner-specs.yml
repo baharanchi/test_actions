@@ -1,0 +1,54 @@
+name: Check Runner Hardware
+
+# This allows you to run the workflow manually from the Actions tab
+on: 
+  workflow_dispatch:
+
+jobs:
+  check-specs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🐧 System Info
+        run: |
+          echo "------------------------------------------"
+          echo "Hostname: $(hostname)"
+          echo "Kernel: $(uname -r)"
+          echo "OS Info:"
+          cat /etc/os-release | grep PRETTY_NAME
+          echo "------------------------------------------"
+
+      - name: 🧠 CPU Core Count
+        run: |
+          echo "Total Logical Cores available:" 
+          nproc
+
+      - name: ⚡ Check AVX Extensions
+        run: |
+          echo "------------------------------------------"
+          echo "Checking CPU Vector Extensions..."
+          
+          # Check for AVX2
+          if grep -q avx2 /proc/cpuinfo; then
+            echo "✅ AVX2 is SUPPORTED"
+          else
+            echo "❌ AVX2 is NOT SUPPORTED"
+          fi
+
+          # Check for AVX512 Foundation (avx512f)
+          if grep -q avx512f /proc/cpuinfo; then
+            echo "✅ AVX512 is SUPPORTED"
+          else
+            echo "❌ AVX512 is NOT SUPPORTED"
+          fi
+          echo "------------------------------------------"
+
+      - name: 📋 Full CPU Details
+        run: lscpu
+
+      - name: 💾 Memory & Disk
+        run: |
+          echo "--- RAM Usage ---"
+          free -h
+          echo ""
+          echo "--- Disk Space ---"
+          df -h /
